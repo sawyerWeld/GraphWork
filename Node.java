@@ -1,5 +1,3 @@
-package project;
-
 import java.util.ArrayList;
 
 public class Node implements Comparable<Object>{
