@@ -1,4 +1,9 @@
-﻿import java.util.ArrayList;
+package project;
+
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -8,22 +13,22 @@ public class Djikstra {
 	BinaryHeap heap;
 	int numNodes;
 	double pathLength = 0;
+	int edgesInPath = 0;
 	int edges = 0;
 	int distanceCount = 0;
 	int sortCount = 0;
-	
+
+	long runTime;
 	long sortTime;
 
-	
 	// CONNECTED GRAPH
 	public void generateGraph(int size, int avgDegree) {
-		
-		//heap = new BinaryHeap(size);
+		// heap = new BinaryHeap(size);
 		numNodes = size;
-		
+
 		Node prev = new Node((int) (Math.random() * 101), (int) (Math.random() * 101));
 		nodes.add(prev);
-		//heap.insert(prev);
+		// heap.insert(prev);
 
 		// Make a path of <size> nodes
 		for (int i = 0; i < size - 1; i++) {
@@ -31,7 +36,7 @@ public class Djikstra {
 			int y = (int) (Math.random() * 101);
 			Node n = new Node(x, y);
 			nodes.add(n);
-			//heap.insert(n);
+			// heap.insert(n);
 			n.addNeighbor(prev);
 			prev.addNeighbor(n);
 			prev = n;
@@ -39,15 +44,15 @@ public class Djikstra {
 
 		// Make the graph connected to avgDegree
 		// currently just adds size*avgDegree edges
-		for (int i = 0; i < (size * (avgDegree-2))+1; i++) {
+		for (int i = 0; i < (size * (avgDegree - 2)) + 1; i++) {
 			int x = (int) (Math.random() * (nodes.size()));
-			//int x = (int) (Math.random() * (heap.getCapacity()));
+			// int x = (int) (Math.random() * (heap.getCapacity()));
 			int y = (int) (Math.random() * (nodes.size()));
-			//int y = (int) (Math.random() * (heap.getCapacity()));
+			// int y = (int) (Math.random() * (heap.getCapacity()));
 			Node a = nodes.get(x);
 			Node b = nodes.get(y);
-			//Node a = heap.get(x);
-			//Node b = heap.get(y);
+			// Node a = heap.get(x);
+			// Node b = heap.get(y);
 			if (!a.getNeighbors().contains(b) && !a.equals(b)) {
 				a.addNeighbor(b);
 				b.addNeighbor(a);
@@ -62,22 +67,20 @@ public class Djikstra {
 			n.printDepth();
 		}
 	}
-	
-	/*public void printGraph2() {
-		System.out.println("      Graph\n-----------------");
-		Node[] h = heap.getArray();
-		for (int i = 0; i < numNodes; i++) {
-			Node n = heap.get(i);
-				n.printDepth();
-		}
-	}*/
-	
+
+	/*
+	 * public void printGraph2() {
+	 * System.out.println("      Graph\n-----------------"); Node[] h =
+	 * heap.getArray(); for (int i = 0; i < numNodes; i++) { Node n =
+	 * heap.get(i); n.printDepth(); } }
+	 */
+
 	/*
 	 * Finds the distance between 2 nodes
 	 */
 	private double distance(Node a, Node b) {
 		distanceCount++;
-		
+
 		double dX2 = Math.pow(b.getX() - a.getX(), 2);
 		double dY2 = Math.pow(b.getY() - a.getY(), 2);
 		return Math.sqrt(dX2 + dY2);
@@ -99,7 +102,7 @@ public class Djikstra {
 
 		while (!Q.isEmpty()) {
 			Node u = findLowest(Q); // u ← vertex in Q with min dist[u]
-			//Node u = findLowestHeap(Q);
+			// Node u = findLowestHeap(Q);
 
 			Q.remove(u);
 
@@ -121,34 +124,34 @@ public class Djikstra {
 
 		return null;
 	}
-	
-	public Node pathFindHeap(int s, int g) {
-		//Node source = nodes.get(0);
-		Node source = heap.get(0);
-		//Node goal = nodes.get(g);
-		Node goal = heap.get(g-1);
 
-		//ArrayList<Node> Q = new ArrayList<Node>(); // create vertex set Q
+	public Node pathFindHeap(int s, int g) {
+		// Node source = nodes.get(0);
+		Node source = heap.get(0);
+		// Node goal = nodes.get(g);
+		Node goal = heap.get(g - 1);
+
+		// ArrayList<Node> Q = new ArrayList<Node>(); // create vertex set Q
 		BinaryHeap Q = new BinaryHeap(numNodes);
 
-		//for (Node v : nodes) {
+		// for (Node v : nodes) {
 		for (int i = 0; i < numNodes; i++) {
 			Node v = heap.get(i);
 			v.setDist(Integer.MAX_VALUE);
 			v.setPrev(null);
 			Q.insert(v);
 		}
-		System.out.println("start: "+Arrays.toString(Q.getArray()));
+		System.out.println("start: " + Arrays.toString(Q.getArray()));
 
 		source.setDist(0);
 
 		while (!Q.isEmpty()) {
 			Node u = findLowestHeap(); // u ← vertex in Q with min dist[u]
-			//Node u = findLowestHeap(Q);
+			// Node u = findLowestHeap(Q);
 			System.out.println(u);
 			Q.deleteMin();
 			System.out.println(Arrays.toString(Q.getArray()));
-			
+
 			if (u.equals(goal)) {
 				return goal;
 			}
@@ -176,7 +179,7 @@ public class Djikstra {
 		}
 		return ret;
 	}
-	
+
 	public ArrayList<Node> getNeighborsinSetHeap(Node n, BinaryHeap set) {
 		ArrayList<Node> ret = new ArrayList<Node>();
 		for (Node neighbor : n.getNeighbors()) {
@@ -192,11 +195,12 @@ public class Djikstra {
 		ArrayList<Node> path = new ArrayList<Node>();
 		while (n.getPrev() != null) {
 			path.add(n);
-			len += distance(n,n.getPrev());
+			len += distance(n, n.getPrev());
 			n = n.getPrev();
 		}
 		path.add(n);
 		Collections.reverse(path);
+		edgesInPath = path.size();
 		pathLength = len;
 		return path;
 	}
@@ -204,33 +208,73 @@ public class Djikstra {
 	private Node findLowest(ArrayList<Node> nodes) {
 		long start = System.nanoTime();
 		sortCount++;
-		
+
 		Collections.sort(nodes);
 		Collections.reverse(nodes);
 		long end = System.nanoTime();
 		sortTime += (end - start);
 		return nodes.get(0);
 	}
-	
+
 	private Node findLowestHeap() {
 		return heap.get(0);
 	}
 
 	public void graphStats() {
-		System.out.printf("\tVertices: %d Edges: %d Path: %.2f Sorts: %d Distances: %d\n",nodes.size(),edges,pathLength,sortCount,distanceCount);
+		System.out.printf("\tVertices: %d Edges: %d Path: %.2f Sorts: %d Distances: %d\n", nodes.size(), edges,
+				pathLength, sortCount, distanceCount);
 	}
-	
-	public static void main(String args[]) {
+
+	public String compressedStats() {
+		return String.format("%d\t%d\t%d\t%d\t%d\t%d\t%d", nodes.size(), edges, runTime, sortTime, sortCount,
+				edgesInPath, distanceCount);
+	}
+
+	public void quickRun(int size, int Deg) {
+		nodes.clear();
+		numNodes = 0;
+		pathLength = 0;
+		edgesInPath = 0;
+		edges = 0;
+		distanceCount = 0;
+		sortCount = 0;
+		runTime = 0;
+		sortTime = 0;
 		long start = System.nanoTime();
+		generateGraph(size, Deg);
+		Node goal = pathFind(0, size - 1);
+		getPath(goal);
+		runTime = System.nanoTime() - start;
+	}
+
+	public static void main(String args[]) throws FileNotFoundException, UnsupportedEncodingException {
 		Djikstra djik = new Djikstra();
-		djik.generateGraph(12, 3);
-		djik.printGraph();
-		Node goal = djik.pathFind(0, 5);
-		System.out.println(djik.getPath(goal));
-		djik.graphStats();
-		long end = System.nanoTime();
-		long seconds = (end - start)/1000;
-		//System.out.printf("\n\n%d microseconds\n",seconds);
-		//System.out.printf("%d microseconds sorting\n",djik.sortTime/1000);
+
+		// Single Run and Print
+		Boolean statsMode = true;
+		if (!statsMode) {
+			long start = System.nanoTime();
+			djik.generateGraph(12, 3);
+			djik.printGraph();
+			Node goal = djik.pathFind(0, 5);
+			System.out.println(djik.getPath(goal));
+			djik.graphStats();
+			long end = System.nanoTime();
+			long seconds = (end - start) / 1000;
+			System.out.println(seconds);
+		}
+
+		// Stats Aggregation
+		PrintWriter writer = new PrintWriter("DijkstraStatsCont.txt", "UTF-8");
+		writer.println("Vertices\tEdges\tRunTime\tSortTime\tSortCount\tEdgesInPath\tDistanceCalc");
+		for (int v = 10; v <= 80; v += 2) {
+			for (int e = 2; e <= 8; e += 1) {
+				for (int i = 0; i < 100; i++) {
+					djik.quickRun(v, e);
+					writer.println(djik.compressedStats());
+				}
+			}
+		}
+		writer.close();
 	}
 }
